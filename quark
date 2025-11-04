@@ -1,0 +1,113 @@
+#!/usr/bin/env zsh
+
+if [[ -z "$1" ]]; then
+  printf "\e[0;31mERROR: project name required\e[0m\n"
+  printf "\e[0;34mUsage: quark <project-name>\e[0m\n"
+  exit 1
+fi
+
+PROJECT_NAME=$1
+
+type_message() {
+    local text="$1"
+    local color="$2"
+    local delay="${3:-0.04}"
+    
+    local blue="\e[0;34m"
+    local green="\e[0;32m"
+    local red="\e[0;31m"
+    local reset="\e[0m"
+    
+    case "$color" in
+      red) color_code="$red" ;;
+      green) color_code="$green" ;;
+      blue) color_code="$blue" ;;
+      *) color_code="" ;;
+    esac
+
+    printf "$color_code"
+    for ((i = 0; i < ${#text}; i++)); do
+        printf "%s" "${text:$i:1}"
+        sleep $delay
+    done
+    printf "$reset\n"
+}
+
+type_message "Welcome to core of learning, Quark" "blue"
+sleep 0.3
+
+printf "\e[0;33mCreating Native Solana Project...\e[0m\n"
+sleep 0.5
+
+echo ""
+
+cargo new "$PROJECT_NAME" --lib --edition 2021
+cd "$PROJECT_NAME"
+
+cat << 'EOF' >> Cargo.toml
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+custom-heap = []
+custom-panic = []
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = [
+  'cfg(target_os, values("solana"))',
+] }
+EOF
+
+echo " "
+
+printf "\e[0;34m✓ Cargo.toml updated with Solana configuration\e[0m\n"
+
+cat << EOF > src/lib.rs
+// ALL LIMITS ARE SELF-IMPOSED
+
+use solana_program::{
+    account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, msg, pubkey::Pubkey,
+};
+
+entrypoint!(solana_main);
+
+pub fn solana_main(
+    program_id: &Pubkey,
+    _accounts: &[AccountInfo],
+    _instruction_data: &[u8],
+) -> ProgramResult {
+    let program_id = program_id.to_string();
+    msg!("All Limits are Self-Imposed");
+    msg!("greetings from program_id: {}", program_id);
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use mollusk_svm::{result::Check, Mollusk};
+    use solana_sdk::{instruction::Instruction, pubkey::Pubkey};
+
+    #[test]
+    fn hello_solana() {
+        let program_id = Pubkey::new_unique();
+        let mollusk_instance = Mollusk::new(&program_id, "target/deploy/$PROJECT_NAME");
+        let instruction = Instruction::new_with_bytes(program_id, &[], vec![]);
+
+        mollusk_instance.process_and_validate_instruction(&instruction, &[], &[Check::success()]);
+    }
+}
+EOF
+
+printf "\e[0;34m✓ src/lib.rs updated with Solana program code\e[0m\n"
+
+echo " "
+cargo add solana-program
+cargo add solana-sdk --dev
+cargo add mollusk-svm --dev
+
+cargo update --precise 1.6.0 -p base64ct@1.8.0
+echo ""
+type_message "ALL LIMITS ARE SELF-IMPOSED.." "blue" "0.04"
+type_message "Good luck learning" "blue" "0.04"
+

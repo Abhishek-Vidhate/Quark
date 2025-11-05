@@ -2,9 +2,12 @@
 
 utilising cargo package manager, and uses rust crates `solana-program`, `solana-sdk` are minimum required **solana rust sdk**. using `mollusk` for program testing.
 
-planning to add interactivity options to select between `solana-program` and `pinnocchio` for CLI.
+### Future plans -
+ - planning to add interactivity options to select between `solana-program` and `pinnocchio` for CLI.
+ - anchor-like linter/lsp suggestions
+ - better security practices implemented for solana program (**anchor-like**) and suggestions/lsp hints
 
-### How to use 
+### How to use -
  - save quark's shell script to any location
  - add quark's location/path to `.zshrc` file , to make the shell script's execution available to **ZSH** Shell
  - run following command in quark's saved directory/folder once ( to make script executable from anywhere in your terminal emulator ( ghostty,kitty ,wezterm, etc ):-
